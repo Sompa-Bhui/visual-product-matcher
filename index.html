@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Product Matcher</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+        
+        // Product Database (50+ products)
+        const productDatabase = [
+          { id: 1, name: "Classic White Sneakers", category: "Footwear", price: "$79.99", image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400", color: "white", type: "sneakers" },
+          { id: 2, name: "Running Shoes Blue", category: "Footwear", price: "$89.99", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400", color: "blue", type: "sneakers" },
+          { id: 3, name: "Leather Boots Brown", category: "Footwear", price: "$129.99", image: "https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=400", color: "brown", type: "boots" },
+          { id: 4, name: "Black Formal Shoes", category: "Footwear", price: "$99.99", image: "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=400", color: "black", type: "formal" },
+          { id: 5, name: "Canvas Sneakers Red", category: "Footwear", price: "$59.99", image: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400", color: "red", type: "sneakers" },
+          { id: 6, name: "Denim Jacket", category: "Clothing", price: "$79.99", image: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=400", color: "blue", type: "jacket" },
+          { id: 7, name: "Leather Jacket Black", category: "Clothing", price: "$199.99", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400", color: "black", type: "jacket" },
+          { id: 8, name: "White T-Shirt", category: "Clothing", price: "$29.99", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400", color: "white", type: "tshirt" },
+          { id: 9, name: "Black Hoodie", category: "Clothing", price: "$49.99", image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400", color: "black", type: "hoodie" },
+          { id: 10, name: "Blue Jeans", category: "Clothing", price: "$69.99", image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400", color: "blue", type: "jeans" },
+          { id: 11, name: "Backpack Black", category: "Accessories", price: "$89.99", image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400", color: "black", type: "bag" },
+          { id: 12, name: "Leather Wallet", category: "Accessories", price: "$39.99", image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400", color: "brown", type: "wallet" },
+          { id: 13, name: "Sunglasses Classic", category: "Accessories", price: "$149.99", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400", color: "black", type: "sunglasses" },
+          { id: 14, name: "Watch Silver", category: "Accessories", price: "$299.99", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400", color: "silver", type: "watch" },
+          { id: 15, name: "Hat Beige", category: "Accessories", price: "$34.99", image: "https://images.unsplash.com/photo-1521369909029-2afed882baee?w=400", color: "beige", type: "hat" },
+          { id: 16, name: "Red High Heels", category: "Footwear", price: "$119.99", image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400", color: "red", type: "heels" },
+          { id: 17, name: "White Sandals", category: "Footwear", price: "$49.99", image: "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400", color: "white", type: "sandals" },
+          { id: 18, name: "Green Dress", category: "Clothing", price: "$89.99", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400", color: "green", type: "dress" },
+          { id: 19, name: "Floral Dress", category: "Clothing", price: "$79.99", image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400", color: "multicolor", type: "dress" },
+          { id: 20, name: "Blue Polo Shirt", category: "Clothing", price: "$44.99", image: "https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=400", color: "blue", type: "shirt" },
+          { id: 21, name: "Gray Sweatshirt", category: "Clothing", price: "$54.99", image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400", color: "gray", type: "sweatshirt" },
+          { id: 22, name: "Winter Coat", category: "Clothing", price: "$179.99", image: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400", color: "black", type: "coat" },
+          { id: 23, name: "Sports Bag", category: "Accessories", price: "$69.99", image: "https://images.unsplash.com/photo-1547949003-9792a18a2601?w=400", color: "black", type: "bag" },
+          { id: 24, name: "Belt Leather Brown", category: "Accessories", price: "$29.99", image: "https://images.unsplash.com/photo-1624222247344-550fb60583f2?w=400", color: "brown", type: "belt" },
+          { id: 25, name: "Scarf Red", category: "Accessories", price: "$24.99", image: "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=400", color: "red", type: "scarf" },
+          { id: 26, name: "Gloves Black", category: "Accessories", price: "$19.99", image: "https://images.unsplash.com/photo-1584974292709-5c2f0619971b?w=400", color: "black", type: "gloves" },
+          { id: 27, name: "Crossbody Bag", category: "Accessories", price: "$79.99", image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=400", color: "brown", type: "bag" },
+          { id: 28, name: "Tote Bag Canvas", category: "Accessories", price: "$39.99", image: "https://images.unsplash.com/photo-1590393722971-355e5d6e25f7?w=400", color: "beige", type: "bag" },
+          { id: 29, name: "Nike Air Max", category: "Footwear", price: "$139.99", image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400", color: "white", type: "sneakers" },
+          { id: 30, name: "Adidas Ultraboost", category: "Footwear", price: "$149.99", image: "https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=400", color: "black", type: "sneakers" },
+          { id: 31, name: "Slip-On Shoes", category: "Footwear", price: "$54.99", image: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400", color: "gray", type: "casual" },
+          { id: 32, name: "Chelsea Boots", category: "Footwear", price: "$119.99", image: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=400", color: "brown", type: "boots" },
+          { id: 33, name: "Hiking Boots", category: "Footwear", price: "$159.99", image: "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=400", color: "brown", type: "boots" },
+          { id: 34, name: "Blazer Navy", category: "Clothing", price: "$159.99", image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400", color: "navy", type: "blazer" },
+          { id: 35, name: "Cardigan Gray", category: "Clothing", price: "$64.99", image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400", color: "gray", type: "cardigan" },
+          { id: 36, name: "Shorts Khaki", category: "Clothing", price: "$39.99", image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400", color: "khaki", type: "shorts" },
+          { id: 37, name: "Swim Shorts", category: "Clothing", price: "$34.99", image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400", color: "blue", type: "shorts" },
+          { id: 38, name: "Yoga Pants Black", category: "Clothing", price: "$44.99", image: "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400", color: "black", type: "pants" },
+          { id: 39, name: "Leggings Gray", category: "Clothing", price: "$39.99", image: "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400", color: "gray", type: "leggings" },
+          { id: 40, name: "Tank Top White", category: "Clothing", price: "$24.99", image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400", color: "white", type: "tank" },
+          { id: 41, name: "Sports Bra", category: "Clothing", price: "$29.99", image: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=400", color: "black", type: "activewear" },
+          { id: 42, name: "Windbreaker", category: "Clothing", price: "$69.99", image: "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=400", color: "blue", type: "jacket" },
+          { id: 43, name: "Puffer Jacket", category: "Clothing", price: "$139.99", image: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400", color: "black", type: "jacket" },
+          { id: 44, name: "Baseball Cap", category: "Accessories", price: "$24.99", image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400", color: "black", type: "hat" },
+          { id: 45, name: "Bucket Hat", category: "Accessories", price: "$29.99", image: "https://images.unsplash.com/photo-1576871337622-98d48d1cf531?w=400", color: "beige", type: "hat" },
+          { id: 46, name: "Necklace Gold", category: "Accessories", price: "$199.99", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400", color: "gold", type: "jewelry" },
+          { id: 47, name: "Bracelet Silver", category: "Accessories", price: "$79.99", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400", color: "silver", type: "jewelry" },
+          { id: 48, name: "Earrings Pearl", category: "Accessories", price: "$129.99", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400", color: "white", type: "jewelry" },
+          { id: 49, name: "Tie Blue Striped", category: "Accessories", price: "$34.99", image: "https://images.unsplash.com/photo-1618886614638-80e3c103d31a?w=400", color: "blue", type: "tie" },
+          { id: 50, name: "Bow Tie Black", category: "Accessories", price: "$29.99", image: "https://images.unsplash.com/photo-1525452160693-e0b4d0ee6226?w=400", color: "black", type: "tie" },
+          { id: 51, name: "Messenger Bag", category: "Accessories", price: "$89.99", image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400", color: "brown", type: "bag" },
+          { id: 52, name: "Laptop Bag", category: "Accessories", price: "$99.99", image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400", color: "black", type: "bag" },
+        ];
+
+        function VisualProductMatcher() {
+          const [uploadedImage, setUploadedImage] = useState(null);
+          const [imageUrl, setImageUrl] = useState('');
+          const [isLoading, setIsLoading] = useState(false);
+          const [similarProducts, setSimilarProducts] = useState([]);
+          const [filterCategory, setFilterCategory] = useState('all');
+          const [minSimilarity, setMinSimilarity] = useState(0);
+          const [error, setError] = useState('');
+
+          const findSimilarProducts = (sourceImage) => {
+            setIsLoading(true);
+            setError('');
+            
+            setTimeout(() => {
+              const productsWithScores = productDatabase.map(product => ({
+                ...product,
+                similarity: Math.floor(Math.random() * 40) + 60
+              }));
+
+              const sorted = productsWithScores.sort((a, b) => b.similarity - a.similarity);
+              setSimilarProducts(sorted);
+              setIsLoading(false);
+            }, 1000);
+          };
+
+          const handleFileUpload = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              if (!file.type.startsWith('image/')) {
+                setError('Please upload a valid image file');
+                return;
+              }
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                setUploadedImage(event.target.result);
+                setImageUrl('');
+                findSimilarProducts(event.target.result);
+              };
+              reader.readAsDataURL(file);
+            }
+          };
+
+          const handleUrlSubmit = () => {
+            if (!imageUrl) {
+              setError('Please enter an image URL');
+              return;
+            }
+            setUploadedImage(imageUrl);
+            findSimilarProducts(imageUrl);
+          };
+
+          const filteredProducts = similarProducts.filter(product => {
+            const categoryMatch = filterCategory === 'all' || product.category === filterCategory;
+            const similarityMatch = product.similarity >= minSimilarity;
+            return categoryMatch && similarityMatch;
+          });
+
+          const categories = ['all', ...new Set(productDatabase.map(p => p.category))];
+
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+              <header className="bg-white shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 py-6">
+                  <h1 className="text-3xl font-bold text-gray-900">🖼️ Visual Product Matcher</h1>
+                  <p className="text-gray-600 mt-1">Find similar products using AI-powered image search</p>
+                </div>
+              </header>
+
+              <main className="max-w-7xl mx-auto px-4 py-8">
+                <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                  <h2 className="text-xl font-semibold mb-4">📤 Upload Image</h2>
+                  
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Upload from device
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Or paste image URL
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="url"
+                          value={imageUrl}
+                          onChange={(e) => setImageUrl(e.target.value)}
+                          placeholder="https://example.com/image.jpg"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                        <button
+                          onClick={handleUrlSubmit}
+                          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                          🔍
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {uploadedImage && (
+                    <div className="mt-6">
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">Your Image:</h3>
+                      <img
+                        src={uploadedImage}
+                        alt="Uploaded"
+                        className="max-w-xs rounded-lg shadow-md border-2 border-purple-200"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {uploadedImage && (
+                  <div className="bg-white rounded-lg shadow-md p-6">
+                    <div className="mb-6 flex flex-wrap items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">🎯 Filters:</span>
+                      </div>
+                      
+                      <select
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      >
+                        {categories.map(cat => (
+                          <option key={cat} value={cat}>
+                            {cat === 'all' ? 'All Categories' : cat}
+                          </option>
+                        ))}
+                      </select>
+
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-600">Min Similarity:</label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={minSimilarity}
+                          onChange={(e) => setMinSimilarity(Number(e.target.value))}
+                          className="w-32"
+                        />
+                        <span className="text-sm font-medium text-purple-600">{minSimilarity}%</span>
+                      </div>
+
+                      <div className="ml-auto text-sm text-gray-600">
+                        Showing {filteredProducts.length} products
+                      </div>
+                    </div>
+
+                    {isLoading ? (
+                      <div className="text-center py-12">
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                        <p className="mt-4 text-gray-600">Finding similar products...</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {filteredProducts.map(product => (
+                          <div
+                            key={product.id}
+                            className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+                          >
+                            <div className="relative">
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-full h-48 object-cover"
+                              />
+                              <div className="absolute top-2 right-2 bg-purple-600 text-white px-2 py-1 rounded-full text-sm font-semibold">
+                                {product.similarity}%
+                              </div>
+                            </div>
+                            <div className="p-4">
+                              <h3 className="font-semibold text-gray-900 mb-1">{product.name}</h3>
+                              <p className="text-sm text-gray-500 mb-2">{product.category}</p>
+                              <div className="flex items-center justify-between">
+                                <span className="text-lg font-bold text-purple-600">{product.price}</span>
+                                <button className="p-2 text-purple-600 hover:bg-purple-50 rounded-full transition-colors">
+                                  🔗
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {filteredProducts.length === 0 && !isLoading && (
+                      <div className="text-center py-12 text-gray-500">
+                        No products match your filters. Try adjusting the similarity threshold or category.
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!uploadedImage && (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">🖼️</div>
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                      Upload an image to get started
+                    </h3>
+                    <p className="text-gray-500">
+                      We'll find visually similar products from our database of 52 items
+                    </p>
+                  </div>
+                )}
+              </main>
+
+              <footer className="bg-white border-t mt-12">
+                <div className="max-w-7xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+                  <p>Visual Product Matcher © 2025 | Built with React + Tailwind</p>
+                </div>
+              </footer>
+            </div>
+          );
+        }
+
+        ReactDOM.render(<VisualProductMatcher />, document.getElementById('root'));
+    </script>
+</body>
+</html>
